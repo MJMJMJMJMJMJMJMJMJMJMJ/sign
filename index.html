@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- KoPubWorld 돋움체 웹폰트 불러오기 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-kopub@1.0.0/kopubworlddotum.css">
+  <style>
+    body { 
+      font-family: 'KoPubWorld Dotum', sans-serif; 
+      padding: 20px; 
+      line-height: 1.6; 
+      max-width: 600px; 
+      margin: 0 auto; 
+      background-color: #f8f9fa; 
+      color: #333; 
+    }
+    .section { border: 1px solid #ccc; padding: 15px; margin-bottom: 15px; border-radius: 5px; background: #fff; }
+    h1 { color: #222; text-align: center; margin-bottom: 25px; }
+    h3 { margin-top: 0; border-left: 4px solid #0047BB; padding-left: 8px; color: #0047BB; }
+    .form-group { margin-bottom: 12px; display: flex; align-items: center; }
+    .form-group label { width: 120px; font-weight: bold; font-size: 14px; }
+    input[type="text"], textarea { 
+      flex: 1; 
+      padding: 8px; 
+      box-sizing: border-box; 
+      border: 1px solid #ccc; 
+      border-radius: 4px; 
+      font-size: 14px; 
+      font-family: 'KoPubWorld Dotum', sans-serif; 
+    }
+    .diagnostic-item { margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dashed #eee; }
+    .diagnostic-item p { margin: 0 0 8px 0; font-weight: bold; font-size: 14px; }
+    
+    .options { display: flex; gap: 10px; margin-top: 5px; width: 100%; }
+    .options label { 
+      flex: 1; 
+      display: inline-flex; 
+      align-items: center; 
+      justify-content: center; 
+      background: #f1f5f9; 
+      padding: 10px 0; 
+      border-radius: 6px; 
+      border: 1px solid #cbd5e0; 
+      cursor: pointer; 
+      font-size: 14px; 
+      font-weight: bold; 
+      color: #4a5568;
+      transition: all 0.2s;
+    }
+    .options input[type="radio"] { display: none; }
+    .options label:has(input[type="radio"]:checked) { 
+      background: #0047BB; 
+      border-color: #0047BB; 
+      color: #ffffff; 
+    }
+    
+    .remarks-container { display: none; margin-top: 15px; padding: 12px; background: #f7fafc; border: 1px solid #0047BB; border-radius: 6px; }
+    .remarks-desc { font-size: 13px; font-weight: bold; color: #0047BB; margin: 0 0 8px 0; display: flex; align-items: center; gap: 4px; }
+    
+    .remarks-container textarea {
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+    
+    .canvas-container { border: 2px dashed #666; background: #fafafa; width: 100%; height: 150px; position: relative; margin-top: 5px; border-radius: 4px; }
+    canvas { width: 100%; height: 100%; cursor: crosshair; }
+    .btn-area { margin-top: 25px; text-align: center; }
+    button { 
+      font-family: 'KoPubWorld Dotum', sans-serif;
+      background: #0047BB; 
+      color: white; 
+      padding: 12px 30px; 
+      border: none; 
+      border-radius: 4px; 
+      cursor: pointer; 
+      font-size: 16px; 
+      font-weight: bold; 
+      transition: background 0.2s; 
+    }
+    button:hover { background: #0056b3; }
+    button:disabled { background: #aaa; cursor: not-allowed; }
+    .clear-btn { background: #6c757d; padding: 5px 10px; font-size: 12px; margin-top: 5px; font-weight: normal; }
+    .clear-btn:hover { background: #5a6268; }
+    .admin-link { float: right; font-size: 13px; color: #0047BB; text-decoration: none; font-weight: bold; }
+    
+    .top-header { display: block; margin-bottom: 15px; height: 20px; }
+    .university-logo { float: left; font-size: 14px; font-weight: bold; color: #0047BB; letter-spacing: 0.5px; }
+    
+    .contact-box { background-color: #fff; padding: 12px 15px; border-radius: 4px; border: 1px solid #cbd5e0; border-left: 4px solid #6c757d; margin-bottom: 20px; font-size: 14px; color: #495057; }
+    .contact-box strong { color: #222; }
+    
+    .success-box { display: none; padding: 25px; background: #fff; border: 2px solid #0047BB; border-radius: 8px; margin-top: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .success-box h2 { color: #0047BB; text-align: center; margin-top: 0; margin-bottom: 5px; }
+    .success-p { text-align: center; color: #666; margin-bottom: 25px; font-size: 14px; }
+    .result-table { width: 100%; border-collapse: collapse; background: #fff; margin-bottom: 15px; border: 1px solid #ddd; }
+    .result-table th, .result-table td { padding: 12px; border: 1px solid #ddd; font-size: 14px; }
+    .result-table th { background: #f8f9fa; width: 30%; font-weight: bold; text-align: center; color: #444; }
+    .result-table td { text-align: left; }
+    .res-ans-box { white-space: pre-line; line-height: 1.6; margin: 0; }
+    .res-agree-txt { font-weight: bold; color: #0047BB; }
+    .res-time-txt { text-align: right; font-size: 12px; color: #999; margin-top: 15px; }
+  </style>
+</head>
+<body>
+
+  <div class="top-header">
+    <div class="university-logo">HANSUNG UNIVERSITY</div>
+    <a id="adminLink" class="admin-link" href="#" style="display:none;">⚙️ 관리자 화면 이동</a>
+  </div>
+
+  <div id="formContainer">
+    <h1 id="appTitle">로딩 중...</h1>
+    
+    <!-- HTML 서식이 적용된 상단 설명 문구 출력 -->
+    <div id="appDescription" style="background-color: #e9ecef; padding: 12px; border-radius: 4px; margin-bottom: 15px; font-size: 14px; color: #495057; border: 1px solid #cbd5e0;">양식 설정을 불러오는 중입니다...</div>
+
+    <div class="contact-box">
+      <strong>📞 문의처:</strong> 한성대학교 입학관리팀(02-760-5643 / <a href="mailto:mjkim@hansung.kr" style="color: #0047BB; text-decoration: none;">mjkim@hansung.kr</a>)
+    </div>
+
+    <form id="signForm">
+      <div class="section">
+        <h3>1. 인적사항 및 계좌정보</h3>
+        <div class="form-group"><label>성명</label><input type="text" name="name" placeholder="예: 홍길동"></div>
+        <div class="form-group"><label>소속</label><input type="text" name="department" placeholder="예: OO대학교"></div>
+        <div class="form-group"><label>직급</label><input type="text" name="position" placeholder="예: 교수"></div>
+        <div class="form-group"><label>연락처</label><input type="text" name="phone" placeholder="예: 010-0000-0000"></div>
+      </div>
+
+      <div class="section">
+        <h3>2. 자가진단 리스트</h3>
+        <div id="questionsContainer"></div>
+        
+        <div id="remarksWrapper" class="remarks-container">
+          <p class="remarks-desc">📋 해당 수험생 또는 고등학교 정보 등 사유를 입력하여 주시기 바랍니다.</p>
+          <textarea id="remarks" name="remarks" rows="3" placeholder="'예'라고 답변한 사항에 대하여 상세하게 작성하여 주시기 바랍니다."></textarea>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>3. 서약 내용</h3>
+        <div id="appContent" style="background: #f4f4f4; padding: 10px; max-height: 180px; overflow-y: auto; white-space: pre-wrap; border: 1px solid #ddd; font-size: 14px;"></div>
+        <br>
+        <label><input type="checkbox" name="agree" value="동의"> 개인정보 수집 및 서약 내용에 동의합니다.</label>
+      </div>
+
+      <div class="section">
+        <h3>4. 서명</h3>
+        <label>상기 본인은 위 명시된 내용을 틀림없이 확인하고 이에 서약합니다. <br>내용이 허위로 밝혀질 경우 민형사상의 책임을 물을 수 있습니다.</label>
+        <div class="canvas-container"><canvas id="sigCanvas"></canvas></div>
+        <button type="button" class="clear-btn" onclick="clearCanvas()">서명 지우기</button>
+      </div>
+
+      <input type="hidden" id="signatureData" name="signature">
+      <input type="hidden" id="qLength" value="0">
+      
+      <div class="btn-area">
+        <button type="button" onclick="submitForm()">제출하기</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="successBox" class="success-box">
+    <h2>📋 서약서 제출 완료</h2>
+    <p class="success-p">자가진단 결과 및 서약 데이터가 안전하게 접수되었습니다.</p>
+    
+    <table class="result-table">
+      <tr><th>성명</th><td id="resName"></td></tr>
+      <tr><th>소속 / 직급</th><td id="resDeptPos"></td></tr>
+      <tr><th>연락처</th><td id="resPhone"></td></tr>
+      <tr id="resRemarksRow" style="display:none;"><th>비고 입력 내용</th><td id="resRemarks" style="font-weight:bold; color:#0047BB; white-space:pre-wrap;"></td></tr>
+      <tr><th>자가진단 결과</th><td><p id="resAnswers" class="res-ans-box"></p></td></tr>
+      <tr><th>서약 동의여부</th><td id="resAgree" class="res-agree-txt"></td></tr>
+      <tr><th>전자 서명 확인</th><td style="text-align: center; background: #fafafa;"><img id="resSignature" src="" style="max-height: 55px; border: 1px dashed #bbb; padding: 2px; background: #fff;"></td></tr>
+    </table>
+    
+    <div id="resDateTime" class="res-time-txt"></div>
+  </div>
+
+  <script>
+    // ⚠️ [중요] 본인의 구글 앱 스크립트 웹앱 배포 URL을 아래에 정확히 입력하세요!
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbyHwSn34aTy1rxkl5MicozTOFcIffvDgkTviEKNalBzNw57QUwwZ8sGo9TX76dic_J9DQ/exec"; 
+
+    const canvas = document.getElementById('sigCanvas');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+    let isCanvasBlank = true;
+
+    canvas.width = canvas.offsetWidth; 
+    canvas.height = canvas.offsetHeight;
+    ctx.strokeStyle = "#000000"; 
+    ctx.lineWidth = 3;
+
+    canvas.addEventListener('mousedown', () => { drawing = true; isCanvasBlank = false; });
+    canvas.addEventListener('mouseup', () => { drawing = false; ctx.beginPath(); });
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('touchstart', (e) => { drawing = true; isCanvasBlank = false; e.preventDefault(); });
+    canvas.addEventListener('touchend', () => { drawing = false; ctx.beginPath(); });
+    canvas.addEventListener('touchmove', (e) => {
+      const touch = e.touches[0]; 
+      const rect = canvas.getBoundingClientRect();
+      if(!drawing) return;
+      ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top); 
+      ctx.stroke();
+    });
+
+    function draw(e) { 
+      if (!drawing) return; 
+      const rect = canvas.getBoundingClientRect(); 
+      ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top); 
+      ctx.stroke(); 
+    }
+
+    function clearCanvas() { 
+      ctx.clearRect(0, 0, canvas.width, canvas.height); 
+      isCanvasBlank = true; 
+    }
+
+    // 1. 페이지 로드 시 백엔드(GAS)에서 설정 및 문항 데이터 받아와 렌더링
+    window.onload = function() {
+      fetch(GAS_URL + "?action=getSettings")
+        .then(response => response.json())
+        .then(settings => {
+          document.getElementById('appTitle').innerText = settings.title || "서약서";
+          document.getElementById('appDescription').innerHTML = settings.description || "";
+          document.getElementById('appContent').innerText = settings.content || "";
+          
+          if (GAS_URL && GAS_URL !== "YOUR_GAS_WEBAPP_URL") {
+            const adminLink = document.getElementById('adminLink');
+            adminLink.href = GAS_URL + "?mode=admin";
+            adminLink.style.display = "inline";
+          }
+
+          const qContainer = document.getElementById('questionsContainer');
+          qContainer.innerHTML = "";
+          
+          const questions = settings.questions || [];
+          document.getElementById('qLength').value = questions.length;
+
+          questions.forEach((q, i) => {
+            const defaultVal = q.defaultVal || "아니오";
+            const checkedYes = (defaultVal === "예") ? "checked" : "";
+            const checkedNo = (defaultVal === "아니오") ? "checked" : "";
+
+            const qHtml = `
+              <div class="diagnostic-item">
+                <p>${i + 1}. ${q.text}</p>
+                <div class="options">
+                  <label><input type="radio" name="check${i}" value="예" ${checkedYes} onclick="toggleRemarks()"> 예</label>
+                  <label><input type="radio" name="check${i}" value="아니오" ${checkedNo} onclick="toggleRemarks()"> 아니오</label>
+                </div>
+              </div>
+            `;
+            qContainer.insertAdjacentHTML('beforeend', qHtml);
+          });
+
+          toggleRemarks();
+        })
+        .catch(err => {
+          alert("설정 데이터를 불러오는 중 오류가 발생했습니다: " + err);
+        });
+    };
+
+    function toggleRemarks() {
+      const form = document.getElementById('signForm');
+      const qLength = parseInt(document.getElementById('qLength').value) || 0;
+      let hasYes = false;
+      
+      for (let i = 0; i < qLength; i++) {
+        const checkedRadio = form.querySelector(`input[name="check${i}"]:checked`);
+        if (checkedRadio && checkedRadio.value === "예") {
+          hasYes = true;
+          break;
+        }
+      }
+      
+      const wrapper = document.getElementById('remarksWrapper');
+      if (hasYes) {
+        wrapper.style.display = 'block';
+      } else {
+        wrapper.style.display = 'none';
+        document.getElementById('remarks').value = ""; 
+      }
+    }
+
+    // 2. 폼 제출 시 백엔드(GAS)로 데이터 전송
+    function submitForm() {
+      const form = document.getElementById('signForm');
+      let missingFields = [];
+
+      if (!form.name.value.trim()) missingFields.push("성명");
+      if (!form.department.value.trim()) missingFields.push("소속");
+      if (!form.position.value.trim()) missingFields.push("직급");
+      if (!form.phone.value.trim()) missingFields.push("연락처");
+
+      const qLength = parseInt(document.getElementById('qLength').value) || 0;
+      let hasYesChecked = false;
+      let formDataObj = {
+        name: form.name.value.trim(),
+        department: form.department.value.trim(),
+        position: form.position.value.trim(),
+        phone: form.phone.value.trim(),
+        remarks: form.remarks ? form.remarks.value.trim() : "",
+        agree: form.agree.checked ? "동의" : "미동의"
+      };
+
+      for (let i = 0; i < qLength; i++) {
+        const radios = form.elements[`check${i}`];
+        if (!radios || !radios.value) {
+          missingFields.push(`자가진단 문항 ${i + 1}`);
+        } else {
+          formDataObj[`check${i}`] = radios.value;
+          if (radios.value === "예") {
+            hasYesChecked = true;
+          }
+        }
+      }
+
+      if (hasYesChecked && !form.remarks.value.trim()) {
+        missingFields.push("비고란 조항 (수험생/고등학교 정보 입력)");
+      }
+
+      if (!form.agree.checked) missingFields.push("개인정보 수집 및 서약 내용 동의");
+      if (isCanvasBlank) missingFields.push("서명 영역 작성");
+
+      if (missingFields.length > 0) {
+        alert("아래 필수 항목이 입력되지 않았습니다.\n\n- " + missingFields.join("\n- "));
+        return;
+      }
+
+      const dataUrl = canvas.toDataURL('image/png');
+      formDataObj.signature = dataUrl;
+
+      const submitBtn = document.querySelector(".btn-area button");
+      submitBtn.disabled = true;
+      submitBtn.innerText = "제출 중...";
+
+      // fetch를 통한 비동기 POST API 통신
+      fetch(GAS_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "submit",
+          formData: formDataObj
+        })
+      })
+      .then(response => response.json())
+      .then(result => {
+        const msg = result.message;
+        if (result.status === "error" || (msg && msg.startsWith("오류"))) {
+          alert(msg || "제출 중 오류가 발생했습니다.");
+          submitBtn.disabled = false;
+          submitBtn.innerText = "제출하기";
+        } else {
+          document.getElementById("resName").innerText = form.name.value;
+          document.getElementById("resDeptPos").innerText = form.department.value + " / " + form.position.value;
+          document.getElementById("resPhone").innerText = form.phone.value;
+          document.getElementById("resAgree").innerText = "동의함 (정상 접수 완료)";
+          document.getElementById("resSignature").src = dataUrl; 
+
+          if (hasYesChecked) {
+            document.getElementById("resRemarks").innerText = form.remarks.value;
+            document.getElementById("resRemarksRow").style.display = "table-row";
+          } else {
+            document.getElementById("resRemarksRow").style.display = "none";
+          }
+
+          let answerSummary = "";
+          for (let i = 0; i < qLength; i++) {
+            const qText = document.querySelectorAll(".diagnostic-item p")[i].innerText;
+            const ansValue = form.elements[`check${i}`].value;
+            answerSummary += qText + "   ➔   선택 결과: [" + ansValue + "]\n";
+          }
+          document.getElementById("resAnswers").innerText = answerSummary;
+
+          const now = new Date();
+          const timeString = "확인 일시: " + now.getFullYear() + "년 " + (now.getMonth() + 1) + "월 " + now.getDate() + "일 " + now.getHours() + "시 " + now.getMinutes() + "분";
+          document.getElementById("resDateTime").innerText = timeString;
+
+          document.getElementById("formContainer").style.display = "none";
+          document.getElementById("successBox").style.display = "block";
+          window.scrollTo(0, 0); 
+        }
+      })
+      .catch(err => {
+        alert("통신 오류가 발생했습니다: " + err);
+        submitBtn.disabled = false;
+        submitBtn.innerText = "제출하기";
+      });
+    }
+  </script>
+</body>
+</html>
